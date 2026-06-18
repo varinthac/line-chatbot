@@ -1,7 +1,7 @@
 {
   "name": "line-file-chatbot",
   "version": "1.0.0",
-  "description": "LINE Chatbot for collecting files with Google Drive storage and OCR",
+  "description": "LINE Chatbot for collecting files with Cloudinary storage, Tesseract OCR, and a web-based file archive",
   "main": "src/app.js",
   "scripts": {
     "start": "node src/app.js",
