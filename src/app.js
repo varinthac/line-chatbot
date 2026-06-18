@@ -29,7 +29,9 @@ app.post('/auth/login', (req, res) => {
   const validPass = process.env.ADMIN_PASSWORD || 'admin';
   if (username === validUser && password === validPass) {
     req.session.authenticated = true;
-    return res.json({ ok: true });
+    const redirect = req.session.returnTo || '/';
+    delete req.session.returnTo;
+    return res.json({ ok: true, redirect });
   }
   res.status(401).json({ error: 'Invalid credentials' });
 });
@@ -41,10 +43,12 @@ app.post('/auth/logout', (req, res) => {
 // Auth middleware — protects everything below
 function requireAuth(req, res, next) {
   if (req.session && req.session.authenticated) return next();
-  // AJAX / API calls
-  if (req.headers['x-requested-with'] === 'XMLHttpRequest' || req.path.startsWith('/api/')) {
+  // API calls — return 401 JSON
+  if (req.path.startsWith('/api/')) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
+  // Save original URL so login can redirect back
+  req.session.returnTo = req.originalUrl;
   res.redirect('/login.html');
 }
 

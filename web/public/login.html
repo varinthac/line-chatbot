@@ -140,7 +140,8 @@
         body: JSON.stringify({ username, password }),
       });
       if (res.ok) {
-        window.location.href = '/';
+        const data = await res.json();
+        window.location.href = data.redirect || '/';
       } else {
         document.getElementById('error-msg').classList.add('show');
       }
