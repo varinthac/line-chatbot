@@ -33,6 +33,8 @@ function multiChannelMiddleware(req, res, next) {
 
   const destination = parsed.destination;
   const channels = getChannels();
+  console.log('Webhook destination:', destination);
+  console.log('Known channels:', channels.map(c => c.destination));
   const channel = channels.find(c => c.destination === destination);
 
   if (!channel) {
