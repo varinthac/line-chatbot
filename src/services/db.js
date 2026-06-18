@@ -13,7 +13,7 @@ async function updateOcr(id, ocrText, status = 'done') {
   });
 }
 
-async function searchFiles({ fileName, fileType, ocrText, lineUserId, dateFrom, dateTo, page = 1, limit = 20 }) {
+async function searchFiles({ fileName, fileType, ocrText, lineUserId, channelId, dateFrom, dateTo, page = 1, limit = 20 }) {
   const where = {};
 
   if (fileName) {
@@ -27,6 +27,9 @@ async function searchFiles({ fileName, fileType, ocrText, lineUserId, dateFrom, 
   }
   if (lineUserId) {
     where.lineUserId = { contains: lineUserId, mode: 'insensitive' };
+  }
+  if (channelId) {
+    where.channelId = channelId;
   }
   if (dateFrom || dateTo) {
     where.sentAt = {};
@@ -57,6 +60,8 @@ async function searchFiles({ fileName, fileType, ocrText, lineUserId, dateFrom, 
         driveWebViewLink: true,
         ocrText: true,
         ocrStatus: true,
+        channelId: true,
+        channelName: true,
         createdAt: true,
       },
     }),
@@ -69,4 +74,12 @@ async function getFileById(id) {
   return prisma.file.findUnique({ where: { id } });
 }
 
-module.exports = { saveFile, updateOcr, searchFiles, getFileById };
+async function listChannels() {
+  return prisma.file.findMany({
+    distinct: ['channelId'],
+    select: { channelId: true, channelName: true },
+    orderBy: { channelName: 'asc' },
+  });
+}
+
+module.exports = { saveFile, updateOcr, searchFiles, getFileById, listChannels };

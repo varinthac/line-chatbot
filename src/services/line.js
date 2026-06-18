@@ -1,21 +1,15 @@
 const line = require('@line/bot-sdk');
 const axios = require('axios');
 
-const config = {
-  channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN,
-  channelSecret: process.env.LINE_CHANNEL_SECRET,
-};
-
-const client = new line.messagingApi.MessagingApiClient(config);
-
-function getMiddleware() {
-  return line.middleware(config);
+function getClient(channelAccessToken) {
+  return new line.messagingApi.MessagingApiClient({ channelAccessToken });
 }
 
-async function downloadContent(messageId) {
+async function downloadContent(messageId, channelAccessToken) {
+  const token = channelAccessToken || process.env.LINE_CHANNEL_ACCESS_TOKEN;
   const url = `https://api-data.line.me/v2/bot/message/${messageId}/content`;
   const res = await axios.get(url, {
-    headers: { Authorization: `Bearer ${process.env.LINE_CHANNEL_ACCESS_TOKEN}` },
+    headers: { Authorization: `Bearer ${token}` },
     responseType: 'arraybuffer',
   });
   return {
@@ -24,18 +18,4 @@ async function downloadContent(messageId) {
   };
 }
 
-async function replyMessage(replyToken, text) {
-  await client.replyMessage({
-    replyToken,
-    messages: [{ type: 'text', text }],
-  });
-}
-
-async function pushMessage(userId, text) {
-  await client.pushMessage({
-    to: userId,
-    messages: [{ type: 'text', text }],
-  });
-}
-
-module.exports = { getMiddleware, downloadContent, replyMessage, pushMessage };
+module.exports = { getClient, downloadContent };

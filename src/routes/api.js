@@ -1,15 +1,33 @@
 const express = require('express');
 const db = require('../services/db');
+const { getChannels } = require('../middleware/multiChannel');
 const storageService = require('../services/storage');
 
 const router = express.Router();
 
 // GET /api/files — ค้นหา/กรองพร้อม pagination
+// GET /api/channels — รายชื่อ channel ทั้งหมดที่มีไฟล์ใน DB
+router.get('/channels', async (req, res) => {
+  try {
+    const dbChannels = await db.listChannels();
+    // merge กับ name จาก config ถ้า DB ไม่มี
+    const configChannels = getChannels();
+    const result = dbChannels.map(c => ({
+      channelId: c.channelId,
+      channelName: c.channelName || configChannels.find(x => x.destination === c.channelId)?.name || c.channelId,
+    }));
+    res.json(result);
+  } catch (err) {
+    console.error('GET /api/channels error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 router.get('/files', async (req, res) => {
   try {
-    const { fileName, fileType, ocrText, lineUserId, dateFrom, dateTo, page, limit } = req.query;
+    const { fileName, fileType, ocrText, lineUserId, channelId, dateFrom, dateTo, page, limit } = req.query;
     const result = await db.searchFiles({
-      fileName, fileType, ocrText, lineUserId, dateFrom, dateTo,
+      fileName, fileType, ocrText, lineUserId, channelId, dateFrom, dateTo,
       page: parseInt(page) || 1,
       limit: parseInt(limit) || 20,
     });

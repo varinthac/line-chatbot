@@ -29,7 +29,7 @@ function defaultFileName(fileType, mimeType, timestamp) {
   return `${fileType}_${ts}.${ext}`;
 }
 
-async function handleFileMessage(event) {
+async function handleFileMessage(event, channel) {
   const { replyToken, source, message, timestamp } = event;
   const lineUserId = source.userId;
   const messageId = message.id;
@@ -37,9 +37,10 @@ async function handleFileMessage(event) {
   const sentAt = new Date(timestamp);
   const dateStr = dayjs(sentAt).format('YYYY-MM-DD');
 
-  await lineService.replyMessage(replyToken, '✅ ได้รับไฟล์แล้ว กำลังจัดเก็บ...');
+  const lineClient = lineService.getClient(channel.token);
+  await lineClient.replyMessage({ replyToken, messages: [{ type: 'text', text: '✅ ได้รับไฟล์แล้ว กำลังจัดเก็บ...' }] });
 
-  const { buffer, contentType } = await lineService.downloadContent(messageId);
+  const { buffer, contentType } = await lineService.downloadContent(messageId, channel.token);
 
   const fileName = message.fileName || defaultFileName(messageType, contentType, timestamp);
   const fileType = resolveFileType(messageType);
@@ -63,12 +64,14 @@ async function handleFileMessage(event) {
     driveFileId,
     driveWebViewLink,
     ocrStatus: fileType === 'image' ? 'pending' : 'n/a',
+    channelId: channel.destination,
+    channelName: channel.name || null,
   });
 
   console.log('DB save OK:', record.id);
 
   const webUrl = `${process.env.BASE_URL}/api/files/${record.id}/preview`;
-  await lineService.pushMessage(lineUserId, webUrl);
+  await lineClient.pushMessage({ to: lineUserId, messages: [{ type: 'text', text: webUrl }] });
 
   if (fileType === 'image') {
     processOcrAsync(record.id, buffer);
@@ -99,7 +102,7 @@ router.post('/', (req, res) => {
     const type = event.message?.type;
     if (!['image', 'video', 'audio', 'file'].includes(type)) continue;
 
-    handleFileMessage(event).catch(err => {
+    handleFileMessage(event, req.channel).catch(err => {
       console.error('handleFileMessage error:', err.message);
     });
   }

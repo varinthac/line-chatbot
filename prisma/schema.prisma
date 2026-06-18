@@ -18,10 +18,13 @@ model File {
   driveWebViewLink String?  @map("drive_web_view_link")
   ocrText          String?  @map("ocr_text") @db.Text
   ocrStatus        String   @default("pending") @map("ocr_status")
+  channelId        String   @default("") @map("channel_id")
+  channelName      String?  @map("channel_name")
   createdAt        DateTime @default(now()) @map("created_at")
 
   @@index([lineUserId])
   @@index([fileType])
   @@index([sentAt])
+  @@index([channelId])
   @@map("files")
 }

@@ -12,11 +12,26 @@ function getQueryParams() {
   return {
     fileName: document.getElementById('q-name').value.trim() || undefined,
     fileType: document.getElementById('q-type').value || undefined,
+    channelId: document.getElementById('q-channel').value || undefined,
     ocrText: document.getElementById('q-ocr').value.trim() || undefined,
     lineUserId: document.getElementById('q-user').value.trim() || undefined,
     dateFrom: document.getElementById('q-from').value || undefined,
     dateTo: document.getElementById('q-to').value || undefined,
   };
+}
+
+async function loadChannels() {
+  try {
+    const res = await fetch(`${API}/channels`);
+    const channels = await res.json();
+    const sel = document.getElementById('q-channel');
+    channels.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.channelId;
+      opt.textContent = c.channelName || c.channelId;
+      sel.appendChild(opt);
+    });
+  } catch {}
 }
 
 function formatDate(iso) {
@@ -267,6 +282,7 @@ document.getElementById('btn-search').addEventListener('click', () => {
 document.getElementById('btn-clear').addEventListener('click', () => {
   ['q-name', 'q-ocr', 'q-user', 'q-from', 'q-to'].forEach(id => { document.getElementById(id).value = ''; });
   document.getElementById('q-type').value = '';
+  document.getElementById('q-channel').value = '';
   lastQuery = {};
   currentPage = 1;
   fetchFiles(1);
@@ -283,4 +299,5 @@ function escHtml(str) {
 }
 
 // โหลดข้อมูลเริ่มต้น
+loadChannels();
 fetchFiles(1);
