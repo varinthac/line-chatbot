@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LINE File Archive</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <h1>📁 LINE File Archive</h1>
+      <p class="subtitle">ค้นหาและพรีวิวไฟล์ที่ส่งผ่าน LINE</p>
+    </div>
+  </header>
+
+  <main>
+    <!-- Search Panel -->
+    <section class="search-panel">
+      <div class="search-grid">
+        <div class="field">
+          <label for="q-name">ชื่อไฟล์</label>
+          <input type="text" id="q-name" placeholder="เช่น invoice, photo..." />
+        </div>
+        <div class="field">
+          <label for="q-type">ประเภทไฟล์</label>
+          <select id="q-type">
+            <option value="">ทั้งหมด</option>
+            <option value="image">🖼 รูปภาพ</option>
+            <option value="video">🎬 วิดีโอ</option>
+            <option value="audio">🎵 เสียง</option>
+            <option value="file">📄 ไฟล์/เอกสาร</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="q-ocr">ข้อความใน OCR</label>
+          <input type="text" id="q-ocr" placeholder="ค้นหาข้อความในภาพ..." />
+        </div>
+        <div class="field">
+          <label for="q-user">LINE User ID</label>
+          <input type="text" id="q-user" placeholder="U1234abcd..." />
+        </div>
+        <div class="field">
+          <label for="q-from">วันที่เริ่มต้น</label>
+          <input type="date" id="q-from" />
+        </div>
+        <div class="field">
+          <label for="q-to">วันที่สิ้นสุด</label>
+          <input type="date" id="q-to" />
+        </div>
+      </div>
+      <div class="search-actions">
+        <button id="btn-search" class="btn-primary">🔍 ค้นหา</button>
+        <button id="btn-clear" class="btn-secondary">✕ ล้าง</button>
+      </div>
+    </section>
+
+    <!-- Results -->
+    <section class="results-section">
+      <div class="results-header" id="results-summary" style="display:none"></div>
+      <div id="results-list"></div>
+      <div id="pagination" class="pagination"></div>
+    </section>
+  </main>
+
+  <!-- Preview Modal -->
+  <div id="modal-overlay" class="modal-overlay hidden" onclick="closeModal(event)">
+    <div class="modal-box" id="modal-box">
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+      <h2 id="modal-title" class="modal-title"></h2>
+      <div class="modal-meta" id="modal-meta"></div>
+      <div class="modal-preview" id="modal-preview"></div>
+      <div class="modal-ocr" id="modal-ocr" style="display:none">
+        <h3>📝 ข้อความจาก OCR</h3>
+        <pre id="modal-ocr-text"></pre>
+      </div>
+      <div class="modal-actions">
+        <a id="modal-download" href="#" class="btn-primary" download>⬇ ดาวน์โหลด</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

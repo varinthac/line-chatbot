@@ -1,0 +1,27 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model File {
+  id               String   @id @default(uuid())
+  lineUserId       String   @map("line_user_id")
+  fileName         String   @map("file_name")
+  fileType         String   @map("file_type")
+  mimeType         String?  @map("mime_type")
+  sentAt           DateTime @map("sent_at")
+  driveFileId      String   @map("drive_file_id")
+  driveWebViewLink String?  @map("drive_web_view_link")
+  ocrText          String?  @map("ocr_text") @db.Text
+  ocrStatus        String   @default("pending") @map("ocr_status")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  @@index([lineUserId])
+  @@index([fileType])
+  @@index([sentAt])
+  @@map("files")
+}
