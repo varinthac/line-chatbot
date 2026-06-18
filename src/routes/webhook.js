@@ -51,6 +51,8 @@ async function handleFileMessage(event) {
     dateStr,
   });
 
+  console.log('Drive upload OK:', driveFileId);
+
   const record = await db.saveFile({
     id: uuidv4(),
     lineUserId,
@@ -62,6 +64,8 @@ async function handleFileMessage(event) {
     driveWebViewLink,
     ocrStatus: fileType === 'image' ? 'pending' : 'n/a',
   });
+
+  console.log('DB save OK:', record.id);
 
   if (fileType === 'image') {
     processOcrAsync(record.id, buffer);
