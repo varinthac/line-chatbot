@@ -1,5 +1,4 @@
 const express = require('express');
-const crypto = require('crypto');
 const dayjs = require('dayjs');
 const { v4: uuidv4 } = require('uuid');
 
@@ -10,22 +9,11 @@ const db = require('../services/db');
 
 const router = express.Router();
 
-// LINE signature verification
-function verifySignature(body, signature) {
-  const hash = crypto
-    .createHmac('SHA256', process.env.LINE_CHANNEL_SECRET)
-    .update(body)
-    .digest('base64');
-  return hash === signature;
-}
-
-// Map LINE message type → ประเภทไฟล์เราเอง
 function resolveFileType(messageType) {
   const map = { image: 'image', video: 'video', audio: 'audio', file: 'file' };
   return map[messageType] || 'file';
 }
 
-// Default ชื่อไฟล์ตาม timestamp และประเภท
 function defaultFileName(fileType, mimeType, timestamp) {
   const ts = dayjs(timestamp).format('YYYYMMDD_HHmmss');
   const extMap = {
@@ -45,21 +33,17 @@ async function handleFileMessage(event) {
   const { replyToken, source, message, timestamp } = event;
   const lineUserId = source.userId;
   const messageId = message.id;
-  const messageType = message.type; // image | video | audio | file
+  const messageType = message.type;
   const sentAt = new Date(timestamp);
   const dateStr = dayjs(sentAt).format('YYYY-MM-DD');
 
-  // ตอบกลับทันทีก่อนประมวลผล
   await lineService.replyMessage(replyToken, '✅ ได้รับไฟล์แล้ว กำลังจัดเก็บ...');
 
-  // ดาวน์โหลดไฟล์จาก LINE
   const { buffer, contentType } = await lineService.downloadContent(messageId);
 
-  // ตั้งชื่อไฟล์
   const fileName = message.fileName || defaultFileName(messageType, contentType, timestamp);
   const fileType = resolveFileType(messageType);
 
-  // อัปโหลดไปยัง Google Drive
   const { driveFileId, driveWebViewLink } = await driveService.uploadFile({
     buffer,
     fileName,
@@ -67,7 +51,6 @@ async function handleFileMessage(event) {
     dateStr,
   });
 
-  // บันทึก metadata ลง DB (OCR ยังไม่ทำ)
   const record = await db.saveFile({
     id: uuidv4(),
     lineUserId,
@@ -80,7 +63,6 @@ async function handleFileMessage(event) {
     ocrStatus: fileType === 'image' ? 'pending' : 'n/a',
   });
 
-  // ทำ OCR แบบ async (ไม่ block response)
   if (fileType === 'image') {
     processOcrAsync(record.id, buffer);
   }
@@ -101,17 +83,10 @@ async function processOcrAsync(fileId, imageBuffer, retries = 3) {
 }
 
 router.post('/', (req, res) => {
-  const signature = req.headers['x-line-signature'];
-  if (!verifySignature(req.body, signature)) {
-    return res.status(403).json({ error: 'Invalid signature' });
-  }
-
-  // ตอบ LINE กลับทันที (ต้องตอบภายใน 200ms)
+  // LINE SDK middleware ตรวจ signature ให้แล้ว — ถึงตรงนี้ได้ = valid
   res.status(200).end();
 
-  const body = JSON.parse(req.body.toString());
-  const events = body.events || [];
-
+  const events = req.body?.events || [];
   for (const event of events) {
     if (event.type !== 'message') continue;
     const type = event.message?.type;
