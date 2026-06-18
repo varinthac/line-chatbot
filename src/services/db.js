@@ -13,7 +13,7 @@ async function updateOcr(id, ocrText, status = 'done') {
   });
 }
 
-async function searchFiles({ fileName, fileType, ocrText, lineUserId, channelId, done, dateFrom, dateTo, page = 1, limit = 20 }) {
+async function searchFiles({ fileName, fileType, ocrText, lineUserId, channelId, done, note, dateFrom, dateTo, page = 1, limit = 20 }) {
   const where = {};
 
   if (fileName) {
@@ -33,6 +33,7 @@ async function searchFiles({ fileName, fileType, ocrText, lineUserId, channelId,
   }
   if (done === 'true') where.done = true;
   if (done === 'false') where.done = false;
+  if (note) where.note = { contains: note, mode: 'insensitive' };
   if (dateFrom || dateTo) {
     where.sentAt = {};
     if (dateFrom) where.sentAt.gte = new Date(dateFrom);

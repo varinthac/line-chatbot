@@ -25,9 +25,9 @@ router.get('/channels', async (req, res) => {
 
 router.get('/files', async (req, res) => {
   try {
-    const { fileName, fileType, ocrText, lineUserId, channelId, done, dateFrom, dateTo, page, limit } = req.query;
+    const { fileName, fileType, ocrText, lineUserId, channelId, done, note, dateFrom, dateTo, page, limit } = req.query;
     const result = await db.searchFiles({
-      fileName, fileType, ocrText, lineUserId, channelId, done, dateFrom, dateTo,
+      fileName, fileType, ocrText, lineUserId, channelId, done, note, dateFrom, dateTo,
       page: parseInt(page) || 1,
       limit: parseInt(limit) || 20,
     });

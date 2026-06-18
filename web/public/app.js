@@ -17,6 +17,7 @@ function getQueryParams() {
     lineUserId: document.getElementById('q-user').value.trim() || undefined,
     dateFrom: document.getElementById('q-from').value || undefined,
     dateTo: document.getElementById('q-to').value || undefined,
+    note: document.getElementById('q-note').value.trim() || undefined,
     done: document.getElementById('q-done').value || undefined,
   };
 }
@@ -310,7 +311,7 @@ document.getElementById('btn-search').addEventListener('click', () => {
 });
 
 document.getElementById('btn-clear').addEventListener('click', () => {
-  ['q-name', 'q-ocr', 'q-user', 'q-from', 'q-to'].forEach(id => { document.getElementById(id).value = ''; });
+  ['q-name', 'q-ocr', 'q-user', 'q-from', 'q-to', 'q-note'].forEach(id => { document.getElementById(id).value = ''; });
   document.getElementById('q-type').value = '';
   document.getElementById('q-channel').value = '';
   document.getElementById('q-done').value = '';
