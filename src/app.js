@@ -20,10 +20,7 @@ app.use(session({
   cookie: { httpOnly: true, maxAge: 8 * 60 * 60 * 1000 }, // 8 hours
 }));
 
-// Auth endpoints (no auth required)
-app.use(express.json());
-
-app.post('/auth/login', (req, res) => {
+app.post('/auth/login', express.json(), (req, res) => {
   const { username, password } = req.body;
   const validUser = process.env.ADMIN_USERNAME || 'admin';
   const validPass = process.env.ADMIN_PASSWORD || 'admin';
