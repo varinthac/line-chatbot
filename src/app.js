@@ -43,11 +43,12 @@ app.post('/auth/logout', (req, res) => {
 // Auth middleware — protects everything below
 function requireAuth(req, res, next) {
   if (req.session && req.session.authenticated) return next();
-  // API calls — return 401 JSON
-  if (req.path.startsWith('/api/')) {
+  const acceptsHtml = req.headers['accept'] && req.headers['accept'].includes('text/html');
+  // AJAX / programmatic API calls — return 401 JSON
+  if (req.path.startsWith('/api/') && !acceptsHtml) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
-  // Save original URL so login can redirect back
+  // Browser request — save original URL and redirect to login
   req.session.returnTo = req.originalUrl;
   res.redirect('/login.html');
 }
