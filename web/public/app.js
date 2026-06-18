@@ -3,6 +3,7 @@ const API = '/api';
 let currentPage = 1;
 let totalPages = 1;
 let lastQuery = {};
+let currentView = 'table';
 
 const fileTypeIcon = { image: '🖼️', video: '🎬', audio: '🎵', file: '📄' };
 const fileTypeLabel = { image: 'รูปภาพ', video: 'วิดีโอ', audio: 'เสียง', file: 'ไฟล์' };
@@ -53,14 +54,21 @@ async function fetchFiles(page = 1) {
   }
 }
 
+function setView(view) {
+  currentView = view;
+  document.getElementById('btn-grid').classList.toggle('active', view === 'grid');
+  document.getElementById('btn-table').classList.toggle('active', view === 'table');
+  fetchFiles(currentPage);
+}
+
 function renderResults(data) {
   const { total, files, page, limit } = data;
   currentPage = page;
   totalPages = Math.ceil(total / limit);
 
   const summary = document.getElementById('results-summary');
-  summary.style.display = 'block';
-  summary.textContent = `พบ ${total.toLocaleString()} ไฟล์`;
+  summary.style.display = 'flex';
+  document.getElementById('results-count').textContent = `พบ ${total.toLocaleString()} ไฟล์`;
 
   const list = document.getElementById('results-list');
   if (!files.length) {
@@ -68,13 +76,59 @@ function renderResults(data) {
     return;
   }
 
-  const grid = document.createElement('div');
-  grid.className = 'file-grid';
-  files.forEach(f => grid.appendChild(createCard(f)));
   list.innerHTML = '';
-  list.appendChild(grid);
+  if (currentView === 'table') {
+    list.appendChild(createTable(files));
+  } else {
+    const grid = document.createElement('div');
+    grid.className = 'file-grid';
+    files.forEach(f => grid.appendChild(createCard(f)));
+    list.appendChild(grid);
+  }
 
   renderPagination(totalPages, page);
+}
+
+function createTable(files) {
+  const table = document.createElement('table');
+  table.className = 'file-table';
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>ภาพ</th>
+        <th>ชื่อไฟล์</th>
+        <th>ประเภท</th>
+        <th>วันที่ส่ง</th>
+        <th>ผู้ส่ง</th>
+        <th>ข้อความ OCR</th>
+      </tr>
+    </thead>
+    <tbody></tbody>`;
+  const tbody = table.querySelector('tbody');
+  files.forEach(f => tbody.appendChild(createRow(f)));
+  return table;
+}
+
+function createRow(file) {
+  const tr = document.createElement('tr');
+  tr.onclick = () => openModal(file);
+
+  const isImage = file.fileType === 'image';
+  const thumb = isImage
+    ? `<img src="${API}/files/${file.id}/preview" alt="" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'thumb-icon-sm\\'>🖼️</div>'" />`
+    : `<div class="thumb-icon-sm">${fileTypeIcon[file.fileType] || '📄'}</div>`;
+
+  const badgeClass = `badge-${file.fileType}`;
+  const ocrSnippet = file.ocrText ? escHtml(file.ocrText.replace(/\n/g, ' ').substring(0, 80)) + (file.ocrText.length > 80 ? '…' : '') : '-';
+
+  tr.innerHTML = `
+    <td class="td-thumb">${thumb}</td>
+    <td class="td-name" title="${escHtml(file.fileName)}">${escHtml(file.fileName)}</td>
+    <td class="td-type"><span class="badge ${badgeClass}">${file.fileType}</span></td>
+    <td class="td-date">${formatDate(file.sentAt)}</td>
+    <td class="td-user">${escHtml(file.lineUserId)}</td>
+    <td class="td-ocr" title="${escHtml(file.ocrText || '')}">${ocrSnippet}</td>`;
+  return tr;
 }
 
 function createCard(file) {

@@ -57,7 +57,13 @@
 
     <!-- Results -->
     <section class="results-section">
-      <div class="results-header" id="results-summary" style="display:none"></div>
+      <div class="results-header" id="results-summary" style="display:none">
+        <span id="results-count"></span>
+        <div class="view-toggle">
+          <button class="view-btn" id="btn-grid" onclick="setView('grid')">⊞ การ์ด</button>
+          <button class="view-btn active" id="btn-table" onclick="setView('table')">☰ ตาราง</button>
+        </div>
+      </div>
       <div id="results-list"></div>
       <div id="pagination" class="pagination"></div>
     </section>
