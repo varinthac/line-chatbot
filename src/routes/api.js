@@ -25,9 +25,9 @@ router.get('/channels', async (req, res) => {
 
 router.get('/files', async (req, res) => {
   try {
-    const { fileName, fileType, ocrText, lineUserId, channelId, dateFrom, dateTo, page, limit } = req.query;
+    const { fileName, fileType, ocrText, lineUserId, channelId, done, dateFrom, dateTo, page, limit } = req.query;
     const result = await db.searchFiles({
-      fileName, fileType, ocrText, lineUserId, channelId, dateFrom, dateTo,
+      fileName, fileType, ocrText, lineUserId, channelId, done, dateFrom, dateTo,
       page: parseInt(page) || 1,
       limit: parseInt(limit) || 20,
     });
@@ -83,6 +83,18 @@ router.get('/files/:id/download', async (req, res) => {
   } catch (err) {
     console.error('GET /api/files/:id/download error:', err);
     res.status(500).json({ error: 'Failed to download file' });
+  }
+});
+
+// PATCH /api/files/:id — อัปเดต done/note
+router.patch('/files/:id', async (req, res) => {
+  try {
+    const { done, note } = req.body;
+    const updated = await db.updateFileFields(req.params.id, { done, note });
+    res.json(updated);
+  } catch (err) {
+    console.error('PATCH /api/files/:id error:', err);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 

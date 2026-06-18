@@ -17,6 +17,7 @@ function getQueryParams() {
     lineUserId: document.getElementById('q-user').value.trim() || undefined,
     dateFrom: document.getElementById('q-from').value || undefined,
     dateTo: document.getElementById('q-to').value || undefined,
+    done: document.getElementById('q-done').value || undefined,
   };
 }
 
@@ -117,6 +118,8 @@ function createTable(files) {
         <th>วันที่ส่ง</th>
         <th>ผู้ส่ง</th>
         <th>ข้อความ OCR</th>
+        <th>Done</th>
+        <th>หมายเหตุ</th>
         <th></th>
       </tr>
     </thead>
@@ -147,7 +150,29 @@ function createRow(file) {
     <td class="td-date">${formatDate(file.sentAt)}</td>
     <td class="td-user">${escHtml(file.lineUserId)}</td>
     <td class="td-ocr" title="${escHtml(file.ocrText || '')}">${ocrSnippet}</td>
+    <td class="td-done"></td>
+    <td class="td-note"></td>
     <td class="td-action"><button class="btn-delete" title="ลบไฟล์" onclick="deleteFile(event,'${file.id}')">🗑️</button></td>`;
+
+  const cbx = document.createElement('input');
+  cbx.type = 'checkbox';
+  cbx.className = 'done-check';
+  cbx.checked = !!file.done;
+  cbx.title = 'Done';
+  cbx.addEventListener('click', e => e.stopPropagation());
+  cbx.addEventListener('change', () => patchFile(file.id, { done: cbx.checked }));
+  tr.querySelector('.td-done').appendChild(cbx);
+
+  const noteInput = document.createElement('input');
+  noteInput.type = 'text';
+  noteInput.className = 'note-input';
+  noteInput.value = file.note || '';
+  noteInput.placeholder = 'หมายเหตุ...';
+  noteInput.addEventListener('click', e => e.stopPropagation());
+  noteInput.addEventListener('blur', () => patchFile(file.id, { note: noteInput.value }));
+  noteInput.addEventListener('keydown', e => { if (e.key === 'Enter') noteInput.blur(); });
+  tr.querySelector('.td-note').appendChild(noteInput);
+
   return tr;
 }
 
@@ -288,6 +313,7 @@ document.getElementById('btn-clear').addEventListener('click', () => {
   ['q-name', 'q-ocr', 'q-user', 'q-from', 'q-to'].forEach(id => { document.getElementById(id).value = ''; });
   document.getElementById('q-type').value = '';
   document.getElementById('q-channel').value = '';
+  document.getElementById('q-done').value = '';
   lastQuery = {};
   currentPage = 1;
   fetchFiles(1);
@@ -298,6 +324,16 @@ document.getElementById('btn-clear').addEventListener('click', () => {
     if (e.key === 'Enter') document.getElementById('btn-search').click();
   });
 });
+
+async function patchFile(id, data) {
+  try {
+    await fetch(`${API}/files/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+  } catch {}
+}
 
 async function deleteFile(e, id) {
   e.stopPropagation();

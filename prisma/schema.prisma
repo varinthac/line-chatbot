@@ -20,6 +20,8 @@ model File {
   ocrStatus        String   @default("pending") @map("ocr_status")
   channelId        String   @default("") @map("channel_id")
   channelName      String?  @map("channel_name")
+  done             Boolean  @default(false)
+  note             String?  @db.Text
   createdAt        DateTime @default(now()) @map("created_at")
 
   @@index([lineUserId])

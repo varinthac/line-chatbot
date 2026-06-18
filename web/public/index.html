@@ -10,7 +10,6 @@
   <header>
     <div class="header-inner">
       <h1>📁 LINE File Archive</h1>
-      <p class="subtitle">ค้นหาและพรีวิวไฟล์ที่ส่งผ่าน LINE</p>
     </div>
   </header>
 
@@ -53,6 +52,14 @@
         <div class="field">
           <label for="q-to">วันที่สิ้นสุด</label>
           <input type="date" id="q-to" />
+        </div>
+        <div class="field">
+          <label for="q-done">Done</label>
+          <select id="q-done">
+            <option value="">ทั้งหมด</option>
+            <option value="true">✅ Done</option>
+            <option value="false">⬜ Not done</option>
+          </select>
         </div>
       </div>
       <div class="search-actions">

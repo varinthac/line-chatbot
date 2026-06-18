@@ -13,7 +13,7 @@ async function updateOcr(id, ocrText, status = 'done') {
   });
 }
 
-async function searchFiles({ fileName, fileType, ocrText, lineUserId, channelId, dateFrom, dateTo, page = 1, limit = 20 }) {
+async function searchFiles({ fileName, fileType, ocrText, lineUserId, channelId, done, dateFrom, dateTo, page = 1, limit = 20 }) {
   const where = {};
 
   if (fileName) {
@@ -31,6 +31,8 @@ async function searchFiles({ fileName, fileType, ocrText, lineUserId, channelId,
   if (channelId) {
     where.channelId = channelId;
   }
+  if (done === 'true') where.done = true;
+  if (done === 'false') where.done = false;
   if (dateFrom || dateTo) {
     where.sentAt = {};
     if (dateFrom) where.sentAt.gte = new Date(dateFrom);
@@ -62,6 +64,8 @@ async function searchFiles({ fileName, fileType, ocrText, lineUserId, channelId,
         ocrStatus: true,
         channelId: true,
         channelName: true,
+        done: true,
+        note: true,
         createdAt: true,
       },
     }),
@@ -78,6 +82,13 @@ async function deleteFile(id) {
   return prisma.file.delete({ where: { id } });
 }
 
+async function updateFileFields(id, { done, note }) {
+  const data = {};
+  if (done !== undefined) data.done = done;
+  if (note !== undefined) data.note = note;
+  return prisma.file.update({ where: { id }, data });
+}
+
 async function listChannels() {
   return prisma.file.findMany({
     distinct: ['channelId'],
@@ -86,4 +97,4 @@ async function listChannels() {
   });
 }
 
-module.exports = { saveFile, updateOcr, searchFiles, getFileById, deleteFile, listChannels };
+module.exports = { saveFile, updateOcr, searchFiles, getFileById, deleteFile, updateFileFields, listChannels };
