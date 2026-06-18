@@ -113,9 +113,11 @@ function createTable(files) {
         <th>ภาพ</th>
         <th>ชื่อไฟล์</th>
         <th>ประเภท</th>
+        <th>Channel</th>
         <th>วันที่ส่ง</th>
         <th>ผู้ส่ง</th>
         <th>ข้อความ OCR</th>
+        <th></th>
       </tr>
     </thead>
     <tbody></tbody>`;
@@ -134,15 +136,18 @@ function createRow(file) {
     : `<div class="thumb-icon-sm">${fileTypeIcon[file.fileType] || '📄'}</div>`;
 
   const badgeClass = `badge-${file.fileType}`;
-  const ocrSnippet = file.ocrText ? escHtml(file.ocrText.replace(/\n/g, ' ').substring(0, 80)) + (file.ocrText.length > 80 ? '…' : '') : '-';
+  const ocrSnippet = file.ocrText ? escHtml(file.ocrText.replace(/\n/g, ' ').substring(0, 60)) + (file.ocrText.length > 60 ? '…' : '') : '-';
+  const channelLabel = escHtml(file.channelName || file.channelId || '-');
 
   tr.innerHTML = `
     <td class="td-thumb">${thumb}</td>
     <td class="td-name" title="${escHtml(file.fileName)}">${escHtml(file.fileName)}</td>
     <td class="td-type"><span class="badge ${badgeClass}">${file.fileType}</span></td>
+    <td class="td-channel">${channelLabel}</td>
     <td class="td-date">${formatDate(file.sentAt)}</td>
     <td class="td-user">${escHtml(file.lineUserId)}</td>
-    <td class="td-ocr" title="${escHtml(file.ocrText || '')}">${ocrSnippet}</td>`;
+    <td class="td-ocr" title="${escHtml(file.ocrText || '')}">${ocrSnippet}</td>
+    <td class="td-action"><button class="btn-delete" title="ลบไฟล์" onclick="deleteFile(event,'${file.id}')">🗑️</button></td>`;
   return tr;
 }
 
@@ -293,6 +298,18 @@ document.getElementById('btn-clear').addEventListener('click', () => {
     if (e.key === 'Enter') document.getElementById('btn-search').click();
   });
 });
+
+async function deleteFile(e, id) {
+  e.stopPropagation();
+  if (!confirm('ต้องการลบไฟล์นี้?')) return;
+  try {
+    const res = await fetch(`${API}/files/${id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error();
+    fetchFiles(currentPage);
+  } catch {
+    alert('ลบไม่สำเร็จ กรุณาลองใหม่');
+  }
+}
 
 function escHtml(str) {
   return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');

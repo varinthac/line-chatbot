@@ -209,11 +209,28 @@ main {
 .td-ocr {
   font-size: 0.8rem;
   color: #495057;
-  max-width: 260px;
+  max-width: 220px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.td-channel {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.td-action { width: 48px; text-align: center; }
+.btn-delete {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+  opacity: 0.5;
+  transition: opacity 0.15s, background 0.15s;
+}
+.btn-delete:hover { opacity: 1; background: #ffe5e5; }
 
 .file-grid {
   display: grid;

@@ -52,4 +52,8 @@ async function getFileUrl(publicId, resourceType = 'auto') {
   return cloudinary.url(publicId, { resource_type: resourceType, secure: true });
 }
 
-module.exports = { uploadFile, getFileStream, getFileUrl };
+async function deleteFile(publicId, resourceType = 'image') {
+  return cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
+}
+
+module.exports = { uploadFile, getFileStream, getFileUrl, deleteFile };

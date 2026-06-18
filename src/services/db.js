@@ -74,6 +74,10 @@ async function getFileById(id) {
   return prisma.file.findUnique({ where: { id } });
 }
 
+async function deleteFile(id) {
+  return prisma.file.delete({ where: { id } });
+}
+
 async function listChannels() {
   return prisma.file.findMany({
     distinct: ['channelId'],
@@ -82,4 +86,4 @@ async function listChannels() {
   });
 }
 
-module.exports = { saveFile, updateOcr, searchFiles, getFileById, listChannels };
+module.exports = { saveFile, updateOcr, searchFiles, getFileById, deleteFile, listChannels };

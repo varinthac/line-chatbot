@@ -17,21 +17,25 @@ function resolveFileType(messageType) {
 function defaultFileName(fileType, mimeType, timestamp) {
   const ts = dayjs(timestamp).format('YYYYMMDD_HHmmss');
   const extMap = {
-    'image/jpeg': 'jpg',
-    'image/png': 'png',
-    'image/gif': 'gif',
-    'video/mp4': 'mp4',
-    'audio/mpeg': 'mp3',
-    'audio/m4a': 'm4a',
+    'image/jpeg': 'jpg', 'image/png': 'png', 'image/gif': 'gif',
+    'video/mp4': 'mp4', 'audio/mpeg': 'mp3', 'audio/m4a': 'm4a',
     'application/pdf': 'pdf',
   };
   const ext = extMap[mimeType] || fileType;
   return `${fileType}_${ts}.${ext}`;
 }
 
+// หา target ID สำหรับ push — ถ้ามาจากกลุ่มให้ push เข้ากลุ่ม
+function getPushTarget(source) {
+  if (source.type === 'group') return source.groupId;
+  if (source.type === 'room') return source.roomId;
+  return source.userId;
+}
+
 async function handleFileMessage(event, channel) {
   const { replyToken, source, message, timestamp } = event;
   const lineUserId = source.userId;
+  const pushTarget = getPushTarget(source);
   const messageId = message.id;
   const messageType = message.type;
   const sentAt = new Date(timestamp);
@@ -46,13 +50,8 @@ async function handleFileMessage(event, channel) {
   const fileType = resolveFileType(messageType);
 
   const { driveFileId, driveWebViewLink } = await storageService.uploadFile({
-    buffer,
-    fileName,
-    mimeType: contentType,
-    dateStr,
+    buffer, fileName, mimeType: contentType, dateStr,
   });
-
-  console.log('Cloudinary upload OK:', driveFileId);
 
   const record = await db.saveFile({
     id: uuidv4(),
@@ -68,10 +67,8 @@ async function handleFileMessage(event, channel) {
     channelName: channel.name || null,
   });
 
-  console.log('DB save OK:', record.id);
-
   const webUrl = `${process.env.BASE_URL}/api/files/${record.id}/preview`;
-  await lineClient.pushMessage({ to: lineUserId, messages: [{ type: 'text', text: webUrl }] });
+  await lineClient.pushMessage({ to: pushTarget, messages: [{ type: 'text', text: webUrl }] });
 
   if (fileType === 'image') {
     processOcrAsync(record.id, buffer);
@@ -94,14 +91,11 @@ async function processOcrAsync(fileId, imageBuffer, retries = 3) {
 
 router.post('/', (req, res) => {
   res.status(200).end();
-
   const events = req.body?.events || [];
-
   for (const event of events) {
     const type = event.message?.type;
     if (event.type !== 'message') continue;
     if (!['image', 'video', 'audio', 'file'].includes(type)) continue;
-
     handleFileMessage(event, req.channel).catch(err => {
       console.error('handleFileMessage error:', err.message, err.stack);
     });

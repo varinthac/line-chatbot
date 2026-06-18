@@ -86,6 +86,23 @@ router.get('/files/:id/download', async (req, res) => {
   }
 });
 
+// DELETE /api/files/:id — ลบไฟล์จาก Cloudinary และ DB
+router.delete('/files/:id', async (req, res) => {
+  try {
+    const file = await db.getFileById(req.params.id);
+    if (!file) return res.status(404).json({ error: 'Not found' });
+
+    const resourceType = resolveCloudinaryType(file.fileType);
+    await storageService.deleteFile(file.driveFileId, resourceType);
+    await db.deleteFile(file.id);
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('DELETE /api/files/:id error:', err);
+    res.status(500).json({ error: 'Failed to delete file' });
+  }
+});
+
 function resolveCloudinaryType(fileType) {
   if (fileType === 'image') return 'image';
   if (fileType === 'video' || fileType === 'audio') return 'video';
