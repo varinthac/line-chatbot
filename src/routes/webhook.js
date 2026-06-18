@@ -3,7 +3,7 @@ const dayjs = require('dayjs');
 const { v4: uuidv4 } = require('uuid');
 
 const lineService = require('../services/line');
-const driveService = require('../services/drive');
+const storageService = require('../services/storage');
 const ocrService = require('../services/ocr');
 const db = require('../services/db');
 
@@ -44,14 +44,14 @@ async function handleFileMessage(event) {
   const fileName = message.fileName || defaultFileName(messageType, contentType, timestamp);
   const fileType = resolveFileType(messageType);
 
-  const { driveFileId, driveWebViewLink } = await driveService.uploadFile({
+  const { driveFileId, driveWebViewLink } = await storageService.uploadFile({
     buffer,
     fileName,
     mimeType: contentType,
     dateStr,
   });
 
-  console.log('Drive upload OK:', driveFileId);
+  console.log('Cloudinary upload OK:', driveFileId);
 
   const record = await db.saveFile({
     id: uuidv4(),

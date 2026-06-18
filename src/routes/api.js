@@ -1,6 +1,6 @@
 const express = require('express');
 const db = require('../services/db');
-const driveService = require('../services/drive');
+const storageService = require('../services/storage');
 
 const router = express.Router();
 
@@ -9,12 +9,7 @@ router.get('/files', async (req, res) => {
   try {
     const { fileName, fileType, ocrText, lineUserId, dateFrom, dateTo, page, limit } = req.query;
     const result = await db.searchFiles({
-      fileName,
-      fileType,
-      ocrText,
-      lineUserId,
-      dateFrom,
-      dateTo,
+      fileName, fileType, ocrText, lineUserId, dateFrom, dateTo,
       page: parseInt(page) || 1,
       limit: parseInt(limit) || 20,
     });
@@ -37,19 +32,17 @@ router.get('/files/:id', async (req, res) => {
   }
 });
 
-// GET /api/files/:id/preview — proxy ไฟล์จาก Google Drive
+// GET /api/files/:id/preview — stream ไฟล์จาก Cloudinary
 router.get('/files/:id/preview', async (req, res) => {
   try {
     const file = await db.getFileById(req.params.id);
     if (!file) return res.status(404).json({ error: 'Not found' });
 
-    const meta = await driveService.getFileMeta(file.driveFileId);
-    const stream = await driveService.getFileStream(file.driveFileId);
+    const resourceType = resolveCloudinaryType(file.fileType);
+    const { stream, contentType } = await storageService.getFileStream(file.driveFileId, resourceType);
 
-    res.setHeader('Content-Type', meta.mimeType || 'application/octet-stream');
+    res.setHeader('Content-Type', contentType || file.mimeType || 'application/octet-stream');
     res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(file.fileName)}"`);
-    if (meta.size) res.setHeader('Content-Length', meta.size);
-
     stream.pipe(res);
   } catch (err) {
     console.error('GET /api/files/:id/preview error:', err);
@@ -63,18 +56,22 @@ router.get('/files/:id/download', async (req, res) => {
     const file = await db.getFileById(req.params.id);
     if (!file) return res.status(404).json({ error: 'Not found' });
 
-    const meta = await driveService.getFileMeta(file.driveFileId);
-    const stream = await driveService.getFileStream(file.driveFileId);
+    const resourceType = resolveCloudinaryType(file.fileType);
+    const { stream, contentType } = await storageService.getFileStream(file.driveFileId, resourceType);
 
-    res.setHeader('Content-Type', meta.mimeType || 'application/octet-stream');
+    res.setHeader('Content-Type', contentType || file.mimeType || 'application/octet-stream');
     res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(file.fileName)}"`);
-    if (meta.size) res.setHeader('Content-Length', meta.size);
-
     stream.pipe(res);
   } catch (err) {
     console.error('GET /api/files/:id/download error:', err);
     res.status(500).json({ error: 'Failed to download file' });
   }
 });
+
+function resolveCloudinaryType(fileType) {
+  if (fileType === 'image') return 'image';
+  if (fileType === 'video' || fileType === 'audio') return 'video';
+  return 'raw';
+}
 
 module.exports = router;
