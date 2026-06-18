@@ -351,6 +351,11 @@ function escHtml(str) {
   return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+async function logout() {
+  await fetch('/auth/logout', { method: 'POST' });
+  window.location.href = '/login.html';
+}
+
 // โหลดข้อมูลเริ่มต้น
 loadChannels();
 fetchFiles(1);

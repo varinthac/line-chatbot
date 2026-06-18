@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LINE File Archive — เข้าสู่ระบบ</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green: #06c755;
+      --green-dark: #05a847;
+      --bg: #f0f2f5;
+      --border: #e2e6ea;
+      --text: #212529;
+      --text-muted: #6c757d;
+      --radius: 12px;
+      --shadow: 0 4px 24px rgba(0,0,0,0.10);
+    }
+    body {
+      font-family: 'Segoe UI', 'Noto Sans Thai', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .login-box {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 380px;
+    }
+    .logo {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .logo-icon {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #06c755, #00a844);
+      border-radius: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      margin-bottom: 12px;
+    }
+    .logo h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .logo p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    .field { margin-bottom: 16px; }
+    .field label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .field input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      color: var(--text);
+      background: #fafafa;
+      transition: border-color 0.2s;
+    }
+    .field input:focus {
+      outline: none;
+      border-color: var(--green);
+      background: white;
+    }
+    .btn-login {
+      width: 100%;
+      padding: 11px;
+      background: var(--green);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.2s;
+    }
+    .btn-login:hover { background: var(--green-dark); }
+    .error-msg {
+      background: #fff0f0;
+      border: 1px solid #ffc9c9;
+      color: #c92a2a;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.87rem;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .error-msg.show { display: block; }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <div class="logo">
+      <div class="logo-icon">📁</div>
+      <h1>LINE File Archive</h1>
+      <p>กรุณาเข้าสู่ระบบเพื่อดำเนินการต่อ</p>
+    </div>
+    <div class="error-msg" id="error-msg">ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</div>
+    <form id="login-form">
+      <div class="field">
+        <label for="username">ชื่อผู้ใช้</label>
+        <input type="text" id="username" name="username" autocomplete="username" required />
+      </div>
+      <div class="field">
+        <label for="password">รหัสผ่าน</label>
+        <input type="password" id="password" name="password" autocomplete="current-password" required />
+      </div>
+      <button type="submit" class="btn-login">เข้าสู่ระบบ</button>
+    </form>
+  </div>
+  <script>
+    document.getElementById('login-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const res = await fetch('/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+      if (res.ok) {
+        window.location.href = '/';
+      } else {
+        document.getElementById('error-msg').classList.add('show');
+      }
+    });
+  </script>
+</body>
+</html>
