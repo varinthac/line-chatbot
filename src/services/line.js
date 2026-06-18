@@ -31,4 +31,11 @@ async function replyMessage(replyToken, text) {
   });
 }
 
-module.exports = { getMiddleware, downloadContent, replyMessage };
+async function pushMessage(userId, text) {
+  await client.pushMessage({
+    to: userId,
+    messages: [{ type: 'text', text }],
+  });
+}
+
+module.exports = { getMiddleware, downloadContent, replyMessage, pushMessage };
