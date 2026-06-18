@@ -50,7 +50,7 @@ function buildQueryString(params) {
 }
 
 async function fetchFiles(page = 1) {
-  const params = { ...lastQuery, page, limit: 20 };
+  const params = { ...lastQuery, page: 1, limit: 25 };
   const qs = buildQueryString(params);
 
   document.getElementById('results-list').innerHTML = `
@@ -102,8 +102,6 @@ function renderResults(data) {
     files.forEach(f => grid.appendChild(createCard(f)));
     list.appendChild(grid);
   }
-
-  renderPagination(totalPages, page);
 }
 
 function createTable(files) {
