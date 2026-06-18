@@ -68,10 +68,7 @@ async function handleFileMessage(event) {
   console.log('DB save OK:', record.id);
 
   const webUrl = `${process.env.BASE_URL}/api/files/${record.id}/preview`;
-  await lineService.pushMessage(
-    lineUserId,
-    `✅ จัดเก็บเรียบร้อย!\n📎 ไฟล์: ${fileName}\n🔗 ลิงค์: ${webUrl}`
-  );
+  await lineService.pushMessage(lineUserId, webUrl);
 
   if (fileType === 'image') {
     processOcrAsync(record.id, buffer);
