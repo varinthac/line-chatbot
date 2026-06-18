@@ -71,11 +71,10 @@ main {
   font-size: 0.82rem;
   font-weight: 600;
   color: var(--text-muted);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-.field label { margin-bottom: 4px; }
 .field input, .field select {
   width: 100%;
   padding: 7px 10px;
