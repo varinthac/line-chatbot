@@ -93,17 +93,19 @@ async function processOcrAsync(fileId, imageBuffer, retries = 3) {
 }
 
 router.post('/', (req, res) => {
-  // LINE SDK middleware ตรวจ signature ให้แล้ว — ถึงตรงนี้ได้ = valid
   res.status(200).end();
 
   const events = req.body?.events || [];
+  console.log(`[webhook] channel=${req.channel?.name} events=${events.length}`);
+
   for (const event of events) {
-    if (event.type !== 'message') continue;
     const type = event.message?.type;
+    console.log(`[webhook] event.type=${event.type} message.type=${type}`);
+    if (event.type !== 'message') continue;
     if (!['image', 'video', 'audio', 'file'].includes(type)) continue;
 
     handleFileMessage(event, req.channel).catch(err => {
-      console.error('handleFileMessage error:', err.message);
+      console.error('handleFileMessage error:', err.message, err.stack);
     });
   }
 });
