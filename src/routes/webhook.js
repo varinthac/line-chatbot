@@ -96,11 +96,9 @@ router.post('/', (req, res) => {
   res.status(200).end();
 
   const events = req.body?.events || [];
-  console.log(`[webhook] channel=${req.channel?.name} events=${events.length}`);
 
   for (const event of events) {
     const type = event.message?.type;
-    console.log(`[webhook] event.type=${event.type} message.type=${type}`);
     if (event.type !== 'message') continue;
     if (!['image', 'video', 'audio', 'file'].includes(type)) continue;
 
