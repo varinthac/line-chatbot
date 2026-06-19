@@ -50,15 +50,18 @@ router.get('/files/:id', async (req, res) => {
   }
 });
 
-// GET /api/files/:id/preview — stream ไฟล์จาก Cloudinary
+// GET /api/files/:id/preview — stream ไฟล์
 router.get('/files/:id/preview', async (req, res) => {
   try {
     const file = await db.getFileById(req.params.id);
     if (!file) return res.status(404).json({ error: 'Not found' });
 
-    const resourceType = resolveCloudinaryType(file.fileType);
-    const { stream, contentType } = await storageService.getFileStream(file.driveFileId, resourceType);
+    // ไฟล์เก่า (Cloudinary) — redirect ไปยัง URL โดยตรง
+    if (file.driveWebViewLink && file.driveWebViewLink.includes('cloudinary.com')) {
+      return res.redirect(file.driveWebViewLink);
+    }
 
+    const { stream, contentType } = await storageService.getFileStream(file.driveFileId);
     res.setHeader('Content-Type', contentType || file.mimeType || 'application/octet-stream');
     res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(file.fileName)}"`);
     stream.pipe(res);
@@ -74,9 +77,12 @@ router.get('/files/:id/download', async (req, res) => {
     const file = await db.getFileById(req.params.id);
     if (!file) return res.status(404).json({ error: 'Not found' });
 
-    const resourceType = resolveCloudinaryType(file.fileType);
-    const { stream, contentType } = await storageService.getFileStream(file.driveFileId, resourceType);
+    // ไฟล์เก่า (Cloudinary) — redirect ไปยัง URL โดยตรง
+    if (file.driveWebViewLink && file.driveWebViewLink.includes('cloudinary.com')) {
+      return res.redirect(file.driveWebViewLink);
+    }
 
+    const { stream, contentType } = await storageService.getFileStream(file.driveFileId);
     res.setHeader('Content-Type', contentType || file.mimeType || 'application/octet-stream');
     res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(file.fileName)}"`);
     stream.pipe(res);
