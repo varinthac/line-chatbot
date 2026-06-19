@@ -18,7 +18,6 @@ body {
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
-  overflow-x: hidden;
 }
 
 /* Header */
@@ -27,6 +26,8 @@ header {
   color: white;
   padding: 14px 0;
   box-shadow: 0 2px 12px rgba(6,199,85,0.3);
+  width: 100%;
+  box-sizing: border-box;
 }
 .header-inner {
   padding: 0 32px;
@@ -51,6 +52,8 @@ header h1 { font-size: 1.8rem; font-weight: 700; }
 /* Main */
 main {
   padding: 20px 32px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Search Panel */
