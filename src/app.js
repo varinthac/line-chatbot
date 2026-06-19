@@ -54,6 +54,9 @@ function requireAuth(req, res, next) {
   res.redirect('/login.html');
 }
 
+// Health check — ไม่ต้อง auth ใช้สำหรับ ping ป้องกัน cold start
+app.get('/health', (req, res) => res.json({ status: 'ok' }));
+
 // Webhook route — LINE signature verified separately, no session needed
 const { multiChannelMiddleware } = require('./middleware/multiChannel');
 app.use('/webhook', express.raw({ type: 'application/json' }), multiChannelMiddleware, webhookRouter);
