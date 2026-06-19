@@ -46,7 +46,11 @@ function requireAuth(req, res, next) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
   // Browser request — save original URL and redirect to login
-  req.session.returnTo = req.originalUrl;
+  // ไม่เก็บ static assets เป็น returnTo
+  const skip = ['.ico', '.png', '.jpg', '.css', '.js', '.map'];
+  if (!skip.some(ext => req.path.endsWith(ext))) {
+    req.session.returnTo = req.originalUrl;
+  }
   res.redirect('/login.html');
 }
 
