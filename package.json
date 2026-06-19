@@ -13,6 +13,7 @@
   "dependencies": {
     "@line/bot-sdk": "^9.4.0",
     "@prisma/client": "^5.22.0",
+    "@supabase/supabase-js": "^2.108.2",
     "axios": "^1.7.9",
     "cloudinary": "^2.10.0",
     "dayjs": "^1.11.13",

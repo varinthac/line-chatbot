@@ -1,54 +1,49 @@
-const cloudinary = require('cloudinary').v2;
+const { createClient } = require('@supabase/supabase-js');
 const axios = require('axios');
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_KEY
+);
 
-function getResourceType(mimeType) {
-  if (!mimeType) return 'auto';
-  if (mimeType.startsWith('image/')) return 'image';
-  if (mimeType.startsWith('video/')) return 'video';
-  if (mimeType.startsWith('audio/')) return 'video';
-  return 'raw';
-}
+const BUCKET = 'files';
 
 async function uploadFile({ buffer, fileName, mimeType, dateStr }) {
-  const resourceType = getResourceType(mimeType);
+  const path = `${dateStr}/${Date.now()}_${fileName}`;
 
-  const result = await new Promise((resolve, reject) => {
-    const uploadStream = cloudinary.uploader.upload_stream(
-      {
-        resource_type: resourceType,
-        folder: `line-chatbot/${dateStr}`,
-        public_id: fileName.replace(/\.[^/.]+$/, ''),
-        use_filename: true,
-        unique_filename: true,
-      },
-      (error, result) => {
-        if (error) reject(error);
-        else resolve(result);
-      }
-    );
-    uploadStream.end(buffer);
-  });
+  const { data, error } = await supabase.storage
+    .from(BUCKET)
+    .upload(path, buffer, { contentType: mimeType, upsert: false });
+
+  if (error) throw error;
 
   return {
-    driveFileId: result.public_id,
-    driveWebViewLink: result.secure_url,
+    driveFileId: data.path,
+    driveWebViewLink: `${process.env.SUPABASE_URL}/storage/v1/object/${BUCKET}/${data.path}`,
   };
 }
 
-async function getFileStream(publicId, resourceType = 'auto') {
-  const url = cloudinary.url(publicId, { resource_type: resourceType, secure: true });
-  const res = await axios.get(url, { responseType: 'stream' });
-  return { stream: res.data, contentType: res.headers['content-type'] };
+async function getFileStream(filePath) {
+  const { data, error } = await supabase.storage
+    .from(BUCKET)
+    .download(filePath);
+
+  if (error) throw error;
+
+  const arrayBuffer = await data.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+  const { Readable } = require('stream');
+  const stream = Readable.from(buffer);
+
+  return { stream, contentType: data.type || 'application/octet-stream' };
 }
 
-async function deleteFile(publicId, resourceType = 'image') {
-  return cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
+async function deleteFile(filePath) {
+  const { error } = await supabase.storage
+    .from(BUCKET)
+    .remove([filePath]);
+
+  if (error) throw error;
 }
 
 module.exports = { uploadFile, getFileStream, deleteFile };
