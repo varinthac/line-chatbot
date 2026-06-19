@@ -17,7 +17,7 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'changeme-secret',
   resave: false,
   saveUninitialized: false,
-  cookie: { httpOnly: true, maxAge: 8 * 60 * 60 * 1000 }, // 8 hours
+  cookie: { httpOnly: true, maxAge: 30 * 24 * 60 * 60 * 1000 }, // 30 days
 }));
 
 app.post('/auth/login', express.json(), (req, res) => {
