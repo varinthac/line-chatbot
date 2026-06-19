@@ -95,6 +95,12 @@ main {
   transition: border-color 0.2s;
   box-sizing: border-box;
 }
+.field input[type="date"] {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+}
 .field input:focus, .field select:focus {
   outline: none;
   border-color: var(--green);
