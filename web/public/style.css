@@ -60,12 +60,15 @@ main {
   box-shadow: var(--shadow);
   padding: 16px 20px;
   margin-bottom: 16px;
+  overflow: hidden;
 }
 .search-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 10px;
   margin-bottom: 12px;
+  width: 100%;
+  min-width: 0;
 }
 .field {
   min-width: 0;
@@ -81,6 +84,8 @@ main {
 }
 .field input, .field select {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   padding: 7px 10px;
   border: 1.5px solid var(--border);
   border-radius: 8px;
@@ -88,6 +93,7 @@ main {
   color: var(--text);
   background: #fafafa;
   transition: border-color 0.2s;
+  box-sizing: border-box;
 }
 .field input:focus, .field select:focus {
   outline: none;
