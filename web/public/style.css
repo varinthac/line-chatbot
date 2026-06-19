@@ -492,6 +492,109 @@ main {
 
 .modal-actions { display: flex; gap: 10px; }
 
+/* ============================================================
+   RESPONSIVE — Mobile first breakpoints
+   ============================================================ */
+
+/* Tablet: ≤ 900px */
+@media (max-width: 900px) {
+  .search-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  main {
+    padding: 16px 20px;
+  }
+  .header-inner {
+    padding: 0 20px;
+  }
+}
+
+/* Mobile: ≤ 600px */
+@media (max-width: 600px) {
+  header h1 {
+    font-size: 1.15rem;
+  }
+  .header-inner {
+    padding: 0 14px;
+  }
+  .btn-logout {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+  }
+
+  main {
+    padding: 12px 14px;
+  }
+
+  .search-panel {
+    padding: 12px 14px;
+  }
+  .search-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .search-actions {
+    flex-direction: column;
+  }
+  .btn-primary, .btn-secondary {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* ตารางให้ scroll แนวนอนได้ */
+  .results-section {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .file-table {
+    min-width: 680px;
+  }
+
+  /* Grid card: 1 column */
+  .file-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    padding: 10px;
+    align-items: flex-end;
+  }
+  .modal-box {
+    padding: 18px 16px;
+    border-radius: 16px 16px 0 0;
+    max-height: 92vh;
+  }
+  .modal-actions {
+    flex-direction: column;
+  }
+  .modal-actions .btn-primary {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Pagination */
+  .page-btn {
+    padding: 6px 10px;
+    font-size: 0.82rem;
+  }
+
+  .results-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+/* Very small: ≤ 380px */
+@media (max-width: 380px) {
+  .search-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================ */
+
 /* Done checkbox & Note input in table */
 .td-done { width: 52px; text-align: center; }
 .done-check {
