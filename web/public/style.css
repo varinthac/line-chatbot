@@ -546,12 +546,8 @@ main {
     padding: 12px 14px;
   }
   .search-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 8px;
-  }
-  /* field ที่ 9 (Done) อยู่คนเดียวแถวสุดท้าย ให้ span เต็มแถว */
-  .search-grid .field:last-child:nth-child(odd) {
-    grid-column: 1 / -1;
   }
   .search-actions {
     flex-direction: column;
