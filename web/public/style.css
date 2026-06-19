@@ -67,6 +67,9 @@ main {
   gap: 10px;
   margin-bottom: 12px;
 }
+.field {
+  min-width: 0;
+}
 .field label {
   display: block;
   font-size: 0.82rem;
