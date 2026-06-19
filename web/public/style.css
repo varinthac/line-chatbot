@@ -512,7 +512,7 @@ main {
    RESPONSIVE — Mobile first breakpoints
    ============================================================ */
 
-/* Tablet: ≤ 900px */
+/* Tablet: ≤ 900px (รวมมือถือแนวนอน) */
 @media (max-width: 900px) {
   .search-grid {
     grid-template-columns: repeat(3, 1fr);
@@ -522,6 +522,16 @@ main {
   }
   .header-inner {
     padding: 0 20px;
+  }
+  /* ทำทุก field เท่ากัน รวม date input */
+  .field input,
+  .field select {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 44px;
+    font-size: 16px;
+    padding: 0 10px;
+    box-sizing: border-box;
   }
 }
 
