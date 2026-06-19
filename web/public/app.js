@@ -107,8 +107,11 @@ function renderResults(data) {
 }
 
 function createTable(files) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'table-scroll-wrapper';
   const table = document.createElement('table');
   table.className = 'file-table';
+  wrapper.appendChild(table);
   table.innerHTML = `
     <thead>
       <tr>
@@ -127,7 +130,7 @@ function createTable(files) {
     <tbody></tbody>`;
   const tbody = table.querySelector('tbody');
   files.forEach(f => tbody.appendChild(createRow(f)));
-  return table;
+  return wrapper;
 }
 
 function createRow(file) {

@@ -18,6 +18,7 @@ body {
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 /* Header */
@@ -533,6 +534,10 @@ main {
     grid-template-columns: 1fr 1fr;
     gap: 8px;
   }
+  /* field ที่ 9 (Done) อยู่คนเดียวแถวสุดท้าย ให้ span เต็มแถว */
+  .search-grid .field:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
   .search-actions {
     flex-direction: column;
   }
@@ -541,8 +546,8 @@ main {
     text-align: center;
   }
 
-  /* ตารางให้ scroll แนวนอนได้ */
-  .results-section {
+  /* ตารางให้ scroll แนวนอนได้ โดย filter ไม่เลื่อน */
+  .table-scroll-wrapper {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
